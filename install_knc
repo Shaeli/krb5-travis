@@ -1,0 +1,22 @@
+#!/bin/bash
+
+KNC_VERSION="1.7.1"
+
+echo "# Fetching and building knc $KNC_VERSION"
+wget http://oskt.secure-endpoints.com/downloads/knc-$KNC_VERSION.tar.gz -O /tmp/knc.tar.gz
+cd /tmp && tar -xvzf /tmp/knc.tar.gz
+cd /tmp/knc-$KNC_VERSION && ./configure && make && sudo make install
+
+echo "# Starting knc listener"
+KRB5_KTNAME=/etc/krb5.keytab knc -T 1 -l 12346 /usr/bin/rev &
+
+echo "# Refreshing ticket"
+echo travis | kinit travis
+klist
+
+echo "# Testing knc client"
+v=$(echo -e "A-Z" | knc aquilon@localhost 12346)
+
+echo "Test returned: $v"
+
+[[ "$v" == 'Z-A' ]] && exit 0 || exit 1

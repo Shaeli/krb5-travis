@@ -1,0 +1,67 @@
+#!/bin/bash
+
+KDB_PASS="q1w2e3r4"
+AQD_PASS="aquilon"
+
+apt-get update
+apt-get install krb5-kdc krb5-admin-server
+
+cat > "/etc/krb5.conf" <<EOF
+[libdefaults]
+	default_realm = DEV
+
+[realms]
+	DEV = {
+		kdc = localhost
+		admin_server = localhost
+		default_domain = dev
+	}
+
+[domain_realm]
+	.dev = DEV
+	dev = DEV
+EOF
+
+echo "*/admin *" >> "/etc/krb5kdc/kadm5.acl"
+
+sed -i "s/$(hostname -d | tr "[:lower:]" "[:upper:]")/DEV/g" /etc/krb5kdc/kdc.conf
+
+echo "# Creating new realm"
+echo -e "$KDB_PASS\n$KDB_PASS" | krb5_newrealm
+
+echo "# Checking that stash exists"
+echo "$KDB_PASS" | kdb5_util stash
+
+for f in /etc/krb5.conf /etc/krb5kdc/kadm5.acl /etc/krb5kdc/kdc.conf; do
+    echo "---------------- $f ----------------"
+    cat "$f"
+done
+
+echo "# Restarting services"
+/etc/init.d/krb5-kdc restart
+/etc/init.d/krb5-admin-server restart
+
+echo "# Creating principal for root/admin"
+echo -e "addprinc root/admin\n$KDB_PASS\n$KDB_PASS" | kadmin.local
+
+echo "# Creating principal for travis"
+echo -e "addprinc travis\ntravis\ntravis" | kadmin.local
+
+echo travis | kinit travis
+
+klist
+
+echo "# Creating principal for aquilon"
+echo -e "addprinc aquilon\n$AQD_PASS\n$AQD_PASS" | kadmin.local
+echo "# Creating principal for aquilon/localhost"
+echo -e "addprinc aquilon/localhost\n$AQD_PASS\n$AQD_PASS" | kadmin.local
+echo "# Creating keytab"
+echo -e "ktadd -k /etc/krb5.keytab aquilon/localhost@DEV" | kadmin.local
+
+chmod ugo+r /etc/krb5.keytab
+
+echo "# Contents of keytab:"
+klist -k "/etc/krb5.keytab"
+echo "list -e" | ktutil
+
+echo -e "\n# ---------------- Done ----------------\n"

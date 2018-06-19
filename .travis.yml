@@ -1,0 +1,7 @@
+script:
+  - sudo ./install_krb5
+  - ./install_knc
+addons:
+  hosts:
+    - travis.dev
+sudo: required
