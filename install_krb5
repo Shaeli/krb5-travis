@@ -1,7 +1,7 @@
 #!/bin/bash
 
-KDB_PASS="q1w2e3r4"
-AQD_PASS="aquilon"
+KDB_PASS="e027c3d05"
+USER_PASS="1b124b6c"
 
 apt-get update
 apt-get install krb5-kdc krb5-admin-server
@@ -51,10 +51,10 @@ echo travis | kinit travis
 
 klist
 
-echo "# Creating principal for aquilon"
-echo -e "addprinc aquilon\n$AQD_PASS\n$AQD_PASS" | kadmin.local
+echo "# Creating principal for travis"
+echo -e "addprinc aquilon\n$USER_PASS\n$USER_PASS" | kadmin.local
 echo "# Creating principal for aquilon/$HOSTNAME"
-echo -e "addprinc aquilon/$HOSTNAME\n$AQD_PASS\n$AQD_PASS" | kadmin.local
+echo -e "addprinc aquilon/$HOSTNAME\n$USER_PASS\n$USER_PASS" | kadmin.local
 echo "# Creating keytab"
 echo -e "ktadd -k /etc/krb5.keytab aquilon/$HOSTNAME@DEV" | kadmin.local
 
