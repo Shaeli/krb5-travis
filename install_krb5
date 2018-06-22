@@ -53,10 +53,10 @@ klist
 
 echo "# Creating principal for aquilon"
 echo -e "addprinc aquilon\n$AQD_PASS\n$AQD_PASS" | kadmin.local
-echo "# Creating principal for aquilon/localhost"
-echo -e "addprinc aquilon/localhost\n$AQD_PASS\n$AQD_PASS" | kadmin.local
+echo "# Creating principal for aquilon/$HOSTNAME"
+echo -e "addprinc aquilon/$HOSTNAME\n$AQD_PASS\n$AQD_PASS" | kadmin.local
 echo "# Creating keytab"
-echo -e "ktadd -k /etc/krb5.keytab aquilon/localhost@DEV" | kadmin.local
+echo -e "ktadd -k /etc/krb5.keytab aquilon/$HOSTNAME@DEV" | kadmin.local
 
 chmod ugo+r /etc/krb5.keytab
 
