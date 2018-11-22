@@ -11,7 +11,7 @@ cat > "/etc/krb5.conf" <<EOF
 	default_realm = DEV.FR
 
 [realms]
-	DEV = {
+	DEV.FR = {
 		kdc = localhost
 		admin_server = localhost
 		default_domain = dev.fr
@@ -24,7 +24,7 @@ EOF
 
 echo "*/admin *" >> "/etc/krb5kdc/kadm5.acl"
 
-sed -i "s/$(hostname -d | tr "[:lower:]" "[:upper:]")/DEV/g" /etc/krb5kdc/kdc.conf
+sed -i "s/$(hostname -d | tr "[:lower:]" "[:upper:]")/DEV.FR/g" /etc/krb5kdc/kdc.conf
 
 echo "# Creating new realm"
 echo -e "$KDB_PASS\n$KDB_PASS" | krb5_newrealm
