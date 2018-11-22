@@ -8,18 +8,18 @@ apt-get install krb5-kdc krb5-admin-server
 
 cat > "/etc/krb5.conf" <<EOF
 [libdefaults]
-	default_realm = DEV
+	default_realm = DEV.FR
 
 [realms]
 	DEV = {
 		kdc = localhost
 		admin_server = localhost
-		default_domain = dev
+		default_domain = dev.fr
 	}
 
 [domain_realm]
-	.dev = DEV
-	dev = DEV
+	.dev = DEV.FR
+	dev = DEV.FR
 EOF
 
 echo "*/admin *" >> "/etc/krb5kdc/kadm5.acl"
@@ -56,7 +56,7 @@ echo -e "addprinc aquilon\n$USER_PASS\n$USER_PASS" | kadmin.local
 echo "# Creating principal for aquilon/$HOSTNAME"
 echo -e "addprinc aquilon/$HOSTNAME\n$USER_PASS\n$USER_PASS" | kadmin.local
 echo "# Creating keytab"
-echo -e "ktadd -k /etc/krb5.keytab aquilon/$HOSTNAME@DEV" | kadmin.local
+echo -e "ktadd -k /etc/krb5.keytab aquilon/$HOSTNAME@DEV.FR" | kadmin.local
 
 chmod ugo+r /etc/krb5.keytab
 
